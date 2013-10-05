@@ -188,6 +188,7 @@ pub struct glp_smcp {
     presolve: c_int,
     foo_bar: [c_double, ..36u],
 }
+pub type Smcp = glp_smcp;
 
 pub struct glp_iptcp {
     msg_lev: c_int,
@@ -299,16 +300,16 @@ extern "C" {
                             lb: c_double, ub: c_double);
     pub fn glp_set_obj_coef(P: *mut glp_prob, j: c_int, coef: c_double);
     pub fn glp_set_mat_row(P: *mut glp_prob, i: c_int, len: c_int,
-                           ind: c_void, val: c_void);
+                           ind: *c_int, val: *c_double);
     pub fn glp_set_mat_col(P: *mut glp_prob, j: c_int, len: c_int,
-                           ind: c_void, val: c_void);
-    pub fn glp_load_matrix(P: *mut glp_prob, ne: c_int, ia: c_void,
-                           ja: c_void, ar: c_void);
-    pub fn glp_check_dup(m: c_int, n: c_int, ne: c_int, ia: c_void,
-                         ja: c_void) -> c_int;
+                           ind: *c_int, val: *c_double);
+    pub fn glp_load_matrix(P: *mut glp_prob, ne: c_int, ia: *c_int,
+                           ja: *c_int, ar: *c_double);
+    pub fn glp_check_dup(m: c_int, n: c_int, ne: c_int, ia: *c_int,
+                         ja: *c_int) -> c_int;
     pub fn glp_sort_matrix(P: *mut glp_prob);
-    pub fn glp_del_rows(P: *mut glp_prob, nrs: c_int, num: c_void);
-    pub fn glp_del_cols(P: *mut glp_prob, ncs: c_int, num: c_void);
+    pub fn glp_del_rows(P: *mut glp_prob, nrs: c_int, num: *c_int);
+    pub fn glp_del_cols(P: *mut glp_prob, ncs: c_int, num: *c_int);
     pub fn glp_copy_prob(dest: *mut glp_prob, prob: *mut glp_prob,
                          names: c_int);
     pub fn glp_erase_prob(P: *mut glp_prob);
@@ -328,10 +329,10 @@ extern "C" {
     pub fn glp_get_col_ub(P: *mut glp_prob, j: c_int) -> c_double;
     pub fn glp_get_obj_coef(P: *mut glp_prob, j: c_int) -> c_double;
     pub fn glp_get_num_nz(P: *mut glp_prob) -> c_int;
-    pub fn glp_get_mat_row(P: *mut glp_prob, i: c_int, ind: c_void,
-                           val: c_void) -> c_int;
-    pub fn glp_get_mat_col(P: *mut glp_prob, j: c_int, ind: c_void,
-                           val: c_void) -> c_int;
+    pub fn glp_get_mat_row(P: *mut glp_prob, i: c_int, ind: *mut c_int,
+                           val: *mut c_double) -> c_int;
+    pub fn glp_get_mat_col(P: *mut glp_prob, j: c_int, ind: *mut c_int,
+                           val: *mut c_double) -> c_int;
     pub fn glp_create_index(P: *mut glp_prob);
     pub fn glp_find_row(P: *mut glp_prob, name: *c_schar) -> c_int;
     pub fn glp_find_col(P: *mut glp_prob, name: *c_schar) -> c_int;
@@ -385,7 +386,7 @@ extern "C" {
     pub fn glp_print_sol(P: *mut glp_prob, fname: *c_schar) -> c_int;
     pub fn glp_read_sol(P: *mut glp_prob, fname: *c_schar) -> c_int;
     pub fn glp_write_sol(P: *mut glp_prob, fname: *c_schar) -> c_int;
-    pub fn glp_print_ranges(P: *mut glp_prob, len: c_int, list: c_void,
+    pub fn glp_print_ranges(P: *mut glp_prob, len: c_int, list: *c_int,
                             flags: c_int, fname: *c_schar) -> c_int;
     pub fn glp_print_ipt(P: *mut glp_prob, fname: *c_schar) -> c_int;
     pub fn glp_read_ipt(P: *mut glp_prob, fname: *c_schar) -> c_int;
@@ -401,21 +402,21 @@ extern "C" {
     pub fn glp_get_bhead(P: *mut glp_prob, k: c_int) -> c_int;
     pub fn glp_get_row_bind(P: *mut glp_prob, i: c_int) -> c_int;
     pub fn glp_get_col_bind(P: *mut glp_prob, j: c_int) -> c_int;
-    pub fn glp_ftran(P: *mut glp_prob, x: c_void);
-    pub fn glp_btran(P: *mut glp_prob, x: c_void);
+    pub fn glp_ftran(P: *mut glp_prob, x: *mut c_double);
+    pub fn glp_btran(P: *mut glp_prob, x: *mut c_double);
     pub fn glp_warm_up(P: *mut glp_prob) -> c_int;
-    pub fn glp_eval_tab_row(P: *mut glp_prob, k: c_int, ind: c_void,
-                            val: c_void) -> c_int;
-    pub fn glp_eval_tab_col(P: *mut glp_prob, k: c_int, ind: c_void,
-                            val: c_void) -> c_int;
-    pub fn glp_transform_row(P: *mut glp_prob, len: c_int, ind: c_void,
-                             val: c_void) -> c_int;
-    pub fn glp_transform_col(P: *mut glp_prob, len: c_int, ind: c_void,
-                             val: c_void) -> c_int;
-    pub fn glp_prim_rtest(P: *mut glp_prob, len: c_int, ind: c_void,
-                          val: c_void, dir: c_int, eps: c_double) -> c_int;
-    pub fn glp_dual_rtest(P: *mut glp_prob, len: c_int, ind: c_void,
-                          val: c_void, dir: c_int, eps: c_double) -> c_int;
+    pub fn glp_eval_tab_row(P: *mut glp_prob, k: c_int, ind: *mut c_int,
+                            val: *mut c_double) -> c_int;
+    pub fn glp_eval_tab_col(P: *mut glp_prob, k: c_int, ind: *mut c_int,
+                            val: *mut c_double) -> c_int;
+    pub fn glp_transform_row(P: *mut glp_prob, len: c_int, ind: *mut c_int,
+                             val: *mut c_double) -> c_int;
+    pub fn glp_transform_col(P: *mut glp_prob, len: c_int, ind: *mut c_int,
+                             val: *mut c_double) -> c_int;
+    pub fn glp_prim_rtest(P: *mut glp_prob, len: c_int, ind: *c_int,
+                          val: *c_double, dir: c_int, eps: c_double) -> c_int;
+    pub fn glp_dual_rtest(P: *mut glp_prob, len: c_int, ind: *c_int,
+                          val: *c_double, dir: c_int, eps: c_double) -> c_int;
     pub fn glp_analyze_bound(P: *mut glp_prob, k: c_int,
                              value1: *mut c_double, var1: *mut c_int,
                              value2: *mut c_double, var2: *mut c_int);
@@ -439,14 +440,14 @@ extern "C" {
     pub fn glp_ios_row_attr(T: *mut glp_tree, i: c_int, attr: *mut glp_attr);
     pub fn glp_ios_pool_size(T: *mut glp_tree) -> c_int;
     pub fn glp_ios_add_row(T: *mut glp_tree, name: *c_schar, klass: c_int,
-                           flags: c_int, len: c_int, ind: c_void, val: c_void,
+                           flags: c_int, len: c_int, ind: *c_int, val: *c_double,
                            _type: c_int, rhs: c_double) -> c_int;
     pub fn glp_ios_del_row(T: *mut glp_tree, i: c_int);
     pub fn glp_ios_clear_pool(T: *mut glp_tree);
     pub fn glp_ios_can_branch(T: *mut glp_tree, j: c_int) -> c_int;
     pub fn glp_ios_branch_upon(T: *mut glp_tree, j: c_int, sel: c_int);
     pub fn glp_ios_select_node(T: *mut glp_tree, p: c_int);
-    pub fn glp_ios_heur_sol(T: *mut glp_tree, x: c_void) -> c_int;
+    pub fn glp_ios_heur_sol(T: *mut glp_tree, x: *c_double) -> c_int;
     pub fn glp_ios_terminate(T: *mut glp_tree);
     pub fn glp_init_mpscp(parm: *mut glp_mpscp);
     pub fn glp_read_mps(P: *mut glp_prob, fmt: c_int, parm: *glp_mpscp,
@@ -471,7 +472,7 @@ extern "C" {
     pub fn glp_mpl_postsolve(tran: *mut glp_tran, prob: *mut glp_prob,
                              sol: c_int) -> c_int;
     pub fn glp_mpl_free_wksp(tran: *mut glp_tran);
-    pub fn glp_main(argc: c_int, argv: c_void) -> c_int;
+    // pub fn glp_main(argc: c_int, argv: c_void) -> c_int;
     pub fn glp_read_cnfsat(P: *mut glp_prob, fname: *c_schar) -> c_int;
     pub fn glp_check_cnfsat(P: *mut glp_prob) -> c_int;
     pub fn glp_write_cnfsat(P: *mut glp_prob, fname: *c_schar) -> c_int;
@@ -484,19 +485,19 @@ extern "C" {
     pub fn glp_puts(s: *c_schar);
     pub fn glp_printf(fmt: *c_schar);
     pub fn glp_term_out(flag: c_int) -> c_int;
-    pub fn glp_term_hook(func:
-                             extern "C" fn(arg1: *mut c_void, arg2: *c_schar)
-                                 -> c_int, info: *mut c_void);
+    // pub fn glp_term_hook(func:
+    //                          extern "C" fn(arg1: *mut c_void, arg2: *c_schar)
+    //                              -> c_int, info: *mut c_void);
     pub fn glp_open_tee(name: *c_schar) -> c_int;
     pub fn glp_close_tee() -> c_int;
     pub fn glp_error_(file: *c_schar, line: c_int) -> glp_errfunc;
     pub fn glp_assert_(expr: *c_schar, file: *c_schar, line: c_int);
-    pub fn glp_error_hook(func: extern "C" fn(arg1: *mut c_void),
-                          info: *mut c_void);
-    pub fn glp_alloc(n: c_int, size: c_int) -> *mut c_void;
-    pub fn glp_realloc(ptr: *mut c_void, n: c_int, size: c_int) ->
-     *mut c_void;
-    pub fn glp_free(ptr: *mut c_void);
+    // pub fn glp_error_hook(func: extern "C" fn(arg1: *mut c_void),
+    //                       info: *mut c_void);
+    // pub fn glp_alloc(n: c_int, size: c_int) -> *mut c_void;
+    // pub fn glp_realloc(ptr: *mut c_void, n: c_int, size: c_int) ->
+    //  *mut c_void;
+    // pub fn glp_free(ptr: *mut c_void);
     pub fn glp_mem_limit(limit: c_int);
     pub fn glp_mem_usage(count: *mut c_int, cpeak: *mut c_int,
                          total: *mut size_t, tpeak: *mut size_t);
@@ -505,7 +506,7 @@ extern "C" {
     pub fn glp_add_vertices(G: *mut glp_graph, nadd: c_int) -> c_int;
     pub fn glp_set_vertex_name(G: *mut glp_graph, i: c_int, name: *c_schar);
     pub fn glp_add_arc(G: *mut glp_graph, i: c_int, j: c_int) -> *mut glp_arc;
-    pub fn glp_del_vertices(G: *mut glp_graph, ndel: c_int, num: c_void);
+    pub fn glp_del_vertices(G: *mut glp_graph, ndel: c_int, num: *c_int);
     pub fn glp_del_arc(G: *mut glp_graph, a: *mut glp_arc);
     pub fn glp_erase_graph(G: *mut glp_graph, v_size: c_int, a_size: c_int);
     pub fn glp_delete_graph(G: *mut glp_graph);
