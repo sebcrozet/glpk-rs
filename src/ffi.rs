@@ -574,3 +574,13 @@ extern "C" {
     pub fn glp_wclique_exact(G: *mut glp_graph, v_wgt: c_int,
                              sol: *mut c_double, v_set: c_int) -> c_int;
 }
+
+#[inline(never)] #[fixed_stack_segment]
+pub fn free_env() {
+    unsafe { glp_free_env(); }
+}
+
+#[inline(never)] #[fixed_stack_segment]
+pub fn init_env() {
+    unsafe { glp_init_env(); }
+}
