@@ -155,7 +155,7 @@ pub static GLP_ASN_MMP : c_int = 3;  /* maximum matching */
 
 pub type Struct_glp_prob = c_void;
 pub type glp_prob = Struct_glp_prob;
-pub struct glp_bfcp {
+pub struct Bfcp {
     msg_lev: c_int,
     _type: c_int,
     lu_size: c_int,
@@ -170,8 +170,9 @@ pub struct glp_bfcp {
     rs_size: c_int,
     foo_bar: [c_double, ..38u],
 }
+pub type glp_bfcp = Bfcp;
 
-pub struct glp_smcp {
+pub struct Smcp {
     msg_lev: c_int,
     meth: c_int,
     pricing: c_int,
@@ -188,17 +189,18 @@ pub struct glp_smcp {
     presolve: c_int,
     foo_bar: [c_double, ..36u],
 }
-pub type Smcp = glp_smcp;
+pub type glp_smcp = Smcp;
 
-pub struct glp_iptcp {
+pub struct Iptcp {
     msg_lev: c_int,
     ord_alg: c_int,
     foo_bar: [c_double, ..48u],
 }
+pub type glp_iptcp = Iptcp;
 
 pub type Struct_glp_tree = c_void;
 pub type glp_tree = Struct_glp_tree;
-pub struct glp_iocp {
+pub struct Iocp {
     msg_lev: c_int,
     br_tech: c_int,
     bt_tech: c_int,
@@ -226,6 +228,7 @@ pub struct glp_iocp {
     alien: c_int,
     foo_bar: [c_double, ..25u],
 }
+pub type glp_iocp = Iocp;
 
 pub struct glp_attr {
     level: c_int,

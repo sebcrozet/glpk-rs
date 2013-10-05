@@ -162,13 +162,18 @@ impl Prob {
         }
     }
 
-    /*
     #[inline(never)] #[fixed_stack_segment]
-    pub fn get_obj_name(&self) -> *schar {
+    pub fn get_obj_name(&self) -> ~str {
         unsafe {
-            glp_get_obj_name(self.this)
-        }
+            let c_str = glp_get_obj_name(self.this);
 
+            if c_str.is_null() {
+                ~""
+            }
+            else {
+                str::raw::from_c_str(c_str)
+            }
+        }
     }
 
     #[inline(never)] #[fixed_stack_segment]
@@ -176,7 +181,6 @@ impl Prob {
         unsafe {
             glp_get_obj_dir(self.this)
         }
-
     }
 
     #[inline(never)] #[fixed_stack_segment]
@@ -184,7 +188,6 @@ impl Prob {
         unsafe {
             glp_get_num_rows(self.this)
         }
-
     }
 
     #[inline(never)] #[fixed_stack_segment]
@@ -192,79 +195,83 @@ impl Prob {
         unsafe {
             glp_get_num_cols(self.this)
         }
-
     }
 
     #[inline(never)] #[fixed_stack_segment]
-    pub fn get_row_name(&self, i: c_int) -> *schar {
+    pub fn get_row_name(&self, i: c_int) -> ~str {
         unsafe {
-            glp_get_row_name(self.this)
-        }
+            let c_str = glp_get_row_name(self.this, i);
 
+            if c_str.is_null() {
+                ~""
+            }
+            else {
+                str::raw::from_c_str(c_str)
+            }
+        }
     }
 
     #[inline(never)] #[fixed_stack_segment]
-    pub fn get_col_name(&self, j: c_int) -> *schar {
+    pub fn get_col_name(&self, j: c_int) -> ~str {
         unsafe {
-            glp_get_col_name(self.this)
-        }
+            let c_str = glp_get_col_name(self.this, j);
 
+            if c_str.is_null() {
+                ~""
+            }
+            else {
+                str::raw::from_c_str(c_str)
+            }
+        }
     }
 
     #[inline(never)] #[fixed_stack_segment]
     pub fn get_row_type(&self, i: c_int) -> c_int {
         unsafe {
-            glp_get_row_type(self.this)
+            glp_get_row_type(self.this, i)
         }
-
     }
 
     #[inline(never)] #[fixed_stack_segment]
     pub fn get_row_lb(&self, i: c_int) -> c_double {
         unsafe {
-            glp_get_row_lb(self.this)
+            glp_get_row_lb(self.this, i)
         }
-
     }
 
     #[inline(never)] #[fixed_stack_segment]
     pub fn get_row_ub(&self, i: c_int) -> c_double {
         unsafe {
-            glp_get_row_ub(self.this)
+            glp_get_row_ub(self.this, i)
         }
-
     }
 
     #[inline(never)] #[fixed_stack_segment]
     pub fn get_col_type(&self, j: c_int) -> c_int {
         unsafe {
-            glp_get_col_type(self.this)
+            glp_get_col_type(self.this, j)
         }
-
     }
 
     #[inline(never)] #[fixed_stack_segment]
     pub fn get_col_lb(&self, j: c_int) -> c_double {
         unsafe {
-            glp_get_col_lb(self.this)
+            glp_get_col_lb(self.this, j)
         }
-
     }
 
     #[inline(never)] #[fixed_stack_segment]
     pub fn get_col_ub(&self, j: c_int) -> c_double {
         unsafe {
-            glp_get_col_ub(self.this)
+            glp_get_col_ub(self.this, j)
         }
-
     }
 
     #[inline(never)] #[fixed_stack_segment]
     pub fn get_obj_coef(&self, j: c_int) -> c_double {
         unsafe {
-            glp_get_obj_coef(self.this)
+            glp_get_obj_coef(self.this, j)
         }
-
     }
 
     #[inline(never)] #[fixed_stack_segment]
@@ -272,23 +279,22 @@ impl Prob {
         unsafe {
             glp_get_num_nz(self.this)
         }
-
     }
 
     #[inline(never)] #[fixed_stack_segment]
-    pub fn get_mat_row(&self, i: c_int, ind: void, val: void) -> c_int {
+    pub fn get_mat_row(&self, i: c_int, ind: &mut [c_int], val: &mut [c_double]) -> c_int {
+        // FIXME: this is unsafe
         unsafe {
-            glp_get_mat_row(self.this)
+            glp_get_mat_row(self.this, i, mp(ind), mp(val))
         }
-
     }
 
     #[inline(never)] #[fixed_stack_segment]
-    pub fn get_mat_col(&self, j: c_int, ind: void, val: void) -> c_int {
+    pub fn get_mat_col(&self, j: c_int, ind: &mut [c_int], val: &mut [c_double]) -> c_int {
+        // FIXME: this is unsafe
         unsafe {
-            glp_get_mat_col(self.this)
+            glp_get_mat_col(self.this, j, mp(ind), mp(val))
         }
-
     }
 
     #[inline(never)] #[fixed_stack_segment]
@@ -296,23 +302,24 @@ impl Prob {
         unsafe {
             glp_create_index(self.this)
         }
-
     }
 
     #[inline(never)] #[fixed_stack_segment]
-    pub fn find_row(&mut self, name: *schar) -> c_int {
+    pub fn find_row(&mut self, name: &str) -> c_int {
         unsafe {
-            glp_find_row(self.this)
+            do name.with_c_str |c_str| {
+                glp_find_row(self.this, c_str)
+            }
         }
-
     }
 
     #[inline(never)] #[fixed_stack_segment]
-    pub fn find_col(&mut self, name: *schar) -> c_int {
+    pub fn find_col(&mut self, name: &str) -> c_int {
         unsafe {
-            glp_find_col(self.this)
+            do name.with_c_str |c_str| {
+                glp_find_col(self.this, c_str)
+            }
         }
-
     }
 
     #[inline(never)] #[fixed_stack_segment]
@@ -320,71 +327,62 @@ impl Prob {
         unsafe {
             glp_delete_index(self.this)
         }
-
     }
 
     #[inline(never)] #[fixed_stack_segment]
     pub fn set_rii(&mut self, i: c_int, rii: c_double) {
         unsafe {
-            glp_set_rii(self.this)
+            glp_set_rii(self.this, i, rii)
         }
-
     }
 
     #[inline(never)] #[fixed_stack_segment]
     pub fn set_sjj(&mut self, j: c_int, sjj: c_double) {
         unsafe {
-            glp_set_sjj(self.this)
+            glp_set_sjj(self.this, j, sjj)
         }
-
     }
 
     #[inline(never)] #[fixed_stack_segment]
     pub fn get_rii(&self, i: c_int) -> c_double {
         unsafe {
-            glp_get_rii(self.this)
+            glp_get_rii(self.this, i)
         }
-
     }
 
     #[inline(never)] #[fixed_stack_segment]
     pub fn get_sjj(&self, j: c_int) -> c_double {
         unsafe {
-            glp_get_sjj(self.this)
+            glp_get_sjj(self.this, j)
         }
-
     }
 
     #[inline(never)] #[fixed_stack_segment]
     pub fn scale(&mut self, flags: c_int) {
         unsafe {
-            glp_scale(self.this)
+            glp_scale_prob(self.this, flags)
         }
-
     }
 
     #[inline(never)] #[fixed_stack_segment]
     pub fn unscale(&mut self) {
         unsafe {
-            glp_unscale(self.this)
+            glp_unscale_prob(self.this)
         }
-
     }
 
     #[inline(never)] #[fixed_stack_segment]
     pub fn set_row_stat(&mut self, i: c_int, stat: c_int) {
         unsafe {
-            glp_set_row_stat(self.this)
+            glp_set_row_stat(self.this, i, stat)
         }
-
     }
 
     #[inline(never)] #[fixed_stack_segment]
     pub fn set_col_stat(&mut self, j: c_int, stat: c_int) {
         unsafe {
-            glp_set_col_stat(self.this)
+            glp_set_col_stat(self.this, j, stat)
         }
-
     }
 
     #[inline(never)] #[fixed_stack_segment]
@@ -392,15 +390,13 @@ impl Prob {
         unsafe {
             glp_std_basis(self.this)
         }
-
     }
 
     #[inline(never)] #[fixed_stack_segment]
     pub fn adv_basis(&mut self, flags: c_int) {
         unsafe {
-            glp_adv_basis(self.this)
+            glp_adv_basis(self.this, flags)
         }
-
     }
 
     #[inline(never)] #[fixed_stack_segment]
@@ -408,9 +404,7 @@ impl Prob {
         unsafe {
             glp_cpx_basis(self.this)
         }
-
     }
-    */
 
     #[inline(never)] #[fixed_stack_segment]
     pub fn simplex(&mut self, parm: Option<&Smcp>) -> c_int {
@@ -423,13 +417,14 @@ impl Prob {
 
     }
 
-    /*
     #[inline(never)] #[fixed_stack_segment]
-    pub fn exact(&mut self, parm: *Smcp) -> c_int {
+    pub fn exact(&mut self, parm: Option<&Smcp>) -> c_int {
         unsafe {
-            glp_exact(self.this)
+            match parm {
+                None    => glp_exact(self.this, ptr::null()),
+                Some(s) => glp_exact(self.this, ptr::to_unsafe_ptr(s))
+            }
         }
-
     }
 
     #[inline(never)] #[fixed_stack_segment]
@@ -437,7 +432,6 @@ impl Prob {
         unsafe {
             glp_get_status(self.this)
         }
-
     }
 
     #[inline(never)] #[fixed_stack_segment]
@@ -445,7 +439,6 @@ impl Prob {
         unsafe {
             glp_get_prim_stat(self.this)
         }
-
     }
 
     #[inline(never)] #[fixed_stack_segment]
@@ -453,9 +446,7 @@ impl Prob {
         unsafe {
             glp_get_dual_stat(self.this)
         }
-
     }
-    */
 
     #[inline(never)] #[fixed_stack_segment]
     pub fn get_obj_val(&self) -> c_double {
@@ -511,16 +502,16 @@ impl Prob {
         unsafe {
             glp_get_unbnd_ray(self.this)
         }
-
     }
 
-    /*
     #[inline(never)] #[fixed_stack_segment]
-    pub fn interior(&mut self, parm: *Iptcp) -> c_int {
+    pub fn interior(&mut self, parm: Option<&Iptcp>) -> c_int {
         unsafe {
-            glp_interior(self.this)
+            match parm {
+                None    => glp_interior(self.this, ptr::null()),
+                Some(s) => glp_interior(self.this, ptr::to_unsafe_ptr(s))
+            }
         }
-
     }
 
     #[inline(never)] #[fixed_stack_segment]
@@ -528,7 +519,6 @@ impl Prob {
         unsafe {
             glp_ipt_status(self.this)
         }
-
     }
 
     #[inline(never)] #[fixed_stack_segment]
@@ -536,55 +526,48 @@ impl Prob {
         unsafe {
             glp_ipt_obj_val(self.this)
         }
-
     }
 
     #[inline(never)] #[fixed_stack_segment]
     pub fn ipt_row_prim(&mut self, i: c_int) -> c_double {
         unsafe {
-            glp_ipt_row_prim(self.this)
+            glp_ipt_row_prim(self.this, i)
         }
-
     }
 
     #[inline(never)] #[fixed_stack_segment]
     pub fn ipt_row_dual(&mut self, i: c_int) -> c_double {
         unsafe {
-            glp_ipt_row_dual(self.this)
+            glp_ipt_row_dual(self.this, i)
         }
-
     }
 
     #[inline(never)] #[fixed_stack_segment]
     pub fn ipt_col_prim(&mut self, j: c_int) -> c_double {
         unsafe {
-            glp_ipt_col_prim(self.this)
+            glp_ipt_col_prim(self.this, j)
         }
-
     }
 
     #[inline(never)] #[fixed_stack_segment]
     pub fn ipt_col_dual(&mut self, j: c_int) -> c_double {
         unsafe {
-            glp_ipt_col_dual(self.this)
+            glp_ipt_col_dual(self.this, j)
         }
-
     }
 
     #[inline(never)] #[fixed_stack_segment]
     pub fn set_col_kind(&mut self, j: c_int, kind: c_int) {
         unsafe {
-            glp_set_col_kind(self.this)
+            glp_set_col_kind(self.this, j, kind)
         }
-
     }
 
     #[inline(never)] #[fixed_stack_segment]
     pub fn get_col_kind(&self, j: c_int) -> c_int {
         unsafe {
-            glp_get_col_kind(self.this)
+            glp_get_col_kind(self.this, j)
         }
-
     }
 
     #[inline(never)] #[fixed_stack_segment]
@@ -592,7 +575,6 @@ impl Prob {
         unsafe {
             glp_get_num_int(self.this)
         }
-
     }
 
     #[inline(never)] #[fixed_stack_segment]
@@ -600,27 +582,27 @@ impl Prob {
         unsafe {
             glp_get_num_bin(self.this)
         }
-
     }
 
     #[inline(never)] #[fixed_stack_segment]
-    pub fn intopt(&mut self, parm: *Iocp) -> c_int {
+    pub fn intopt(&mut self, parm: Option<&Iocp>) -> c_int {
         unsafe {
-            glp_intopt(self.this)
+            match parm {
+                None    => glp_intopt(self.this, ptr::null()),
+                Some(s) => glp_intopt(self.this, ptr::to_unsafe_ptr(s))
+            }
         }
-
     }
 
     #[inline(never)] #[fixed_stack_segment]
-    pub fn mip_status(&mut self) -> c_int {
+    pub fn mip_status(&self) -> c_int {
         unsafe {
             glp_mip_status(self.this)
         }
-
     }
 
     #[inline(never)] #[fixed_stack_segment]
-    pub fn mip_obj_val(&mut self) -> c_double {
+    pub fn mip_obj_val(&self) -> c_double {
         unsafe {
             glp_mip_obj_val(self.this)
         }
@@ -628,117 +610,131 @@ impl Prob {
     }
 
     #[inline(never)] #[fixed_stack_segment]
-    pub fn mip_row_val(&mut self, i: c_int) -> c_double {
+    pub fn mip_row_val(&self, i: c_int) -> c_double {
         unsafe {
-            glp_mip_row_val(self.this)
+            glp_mip_row_val(self.this, i)
         }
 
     }
 
     #[inline(never)] #[fixed_stack_segment]
-    pub fn mip_col_val(&mut self, j: c_int) -> c_double {
+    pub fn mip_col_val(&self, j: c_int) -> c_double {
         unsafe {
-            glp_mip_col_val(self.this)
+            glp_mip_col_val(self.this, j)
         }
 
     }
 
     #[inline(never)] #[fixed_stack_segment]
     pub fn check_kkt(&mut self,
-    sol:    c_int,
-    cond:   c_int,
-    ae_max: *mut c_double,
-    ae_ind: *mut c_int,
-    re_max: *mut c_double,
-    re_ind: *mut c_int) {
-    }
-
-    #[inline(never)] #[fixed_stack_segment]
-    pub fn print_sol(&mut self, fname: *schar) -> c_int {
+                     sol:    c_int,
+                     cond:   c_int,
+                     ae_max: &mut c_double,
+                     ae_ind: &mut c_int,
+                     re_max: &mut c_double,
+                     re_ind: &mut c_int) {
         unsafe {
-            glp_print_sol(self.this)
+            glp_check_kkt(self.this, sol, cond, ptr::to_mut_unsafe_ptr(ae_max),
+                          ptr::to_mut_unsafe_ptr(ae_ind), ptr::to_mut_unsafe_ptr(re_max),
+                          ptr::to_mut_unsafe_ptr(re_ind));
         }
-
     }
 
     #[inline(never)] #[fixed_stack_segment]
-    pub fn read_sol(&mut self, fname: *schar) -> c_int {
+    pub fn print_sol(&mut self, fname: &str) -> c_int {
         unsafe {
-            glp_read_sol(self.this)
+            do fname.with_c_str |c| {
+                glp_print_sol(self.this, c)
+            }
         }
-
     }
 
     #[inline(never)] #[fixed_stack_segment]
-    pub fn write_sol(&mut self, fname: *schar) -> c_int {
+    pub fn read_sol(&mut self, fname: &str) -> c_int {
         unsafe {
-            glp_write_sol(self.this)
+            do fname.with_c_str |c| {
+                glp_read_sol(self.this, c)
+            }
         }
-
     }
 
     #[inline(never)] #[fixed_stack_segment]
-    pub fn print_ranges(&mut self, len: c_int, list: void, flags: c_int, fname: *schar) -> c_int {
+    pub fn write_sol(&mut self, fname: &str) -> c_int {
         unsafe {
-            glp_print_ranges(self.this)
+            do fname.with_c_str |c| {
+                glp_write_sol(self.this, c)
+            }
         }
-
     }
 
     #[inline(never)] #[fixed_stack_segment]
-    pub fn print_ipt(&mut self, fname: *schar) -> c_int {
+    pub fn print_ranges(&mut self, len: c_int, list: &[c_int], flags: c_int, fname: &str) -> c_int {
         unsafe {
-            glp_print_ipt(self.this)
+            do fname.with_c_str |c| {
+                glp_print_ranges(self.this, len, p(list), flags, c)
+            }
         }
-
     }
 
     #[inline(never)] #[fixed_stack_segment]
-    pub fn read_ipt(&mut self, fname: *schar) -> c_int {
+    pub fn print_ipt(&mut self, fname: &str) -> c_int {
         unsafe {
-            glp_read_ipt(self.this)
+            do fname.with_c_str |c| {
+                glp_print_ipt(self.this, c)
+            }
         }
-
     }
 
     #[inline(never)] #[fixed_stack_segment]
-    pub fn write_ipt(&mut self, fname: *schar) -> c_int {
+    pub fn read_ipt(&mut self, fname: &str) -> c_int {
         unsafe {
-            glp_write_ipt(self.this)
+            do fname.with_c_str |c| {
+                glp_read_ipt(self.this, c)
+            }
         }
-
     }
 
     #[inline(never)] #[fixed_stack_segment]
-    pub fn print_mip(&mut self, fname: *schar) -> c_int {
+    pub fn write_ipt(&mut self, fname: &str) -> c_int {
         unsafe {
-            glp_print_mip(self.this)
+            do fname.with_c_str |c| {
+                glp_write_ipt(self.this, c)
+            }
         }
-
     }
 
     #[inline(never)] #[fixed_stack_segment]
-    pub fn read_mip(&mut self, fname: *schar) -> c_int {
+    pub fn print_mip(&mut self, fname: &str) -> c_int {
         unsafe {
-            glp_read_mip(self.this)
+            do fname.with_c_str |c| {
+                glp_print_mip(self.this, c)
+            }
         }
-
     }
 
     #[inline(never)] #[fixed_stack_segment]
-    pub fn write_mip(&mut self, fname: *schar) -> c_int {
+    pub fn read_mip(&mut self, fname: &str) -> c_int {
         unsafe {
-            glp_write_mip(self.this)
+            do fname.with_c_str |c| {
+                glp_read_mip(self.this, c)
+            }
         }
-
     }
 
     #[inline(never)] #[fixed_stack_segment]
-    pub fn bf_exists(&mut self) -> c_int {
+    pub fn write_mip(&mut self, fname: &str) -> c_int {
+        unsafe {
+            do fname.with_c_str |c| {
+                glp_write_mip(self.this, c)
+            }
+        }
+    }
+
+    #[inline(never)] #[fixed_stack_segment]
+    pub fn bf_exists(&self) -> c_int {
         unsafe {
             glp_bf_exists(self.this)
         }
-
     }
 
     #[inline(never)] #[fixed_stack_segment]
@@ -746,7 +742,6 @@ impl Prob {
         unsafe {
             glp_factorize(self.this)
         }
-
     }
 
     #[inline(never)] #[fixed_stack_segment]
@@ -754,63 +749,55 @@ impl Prob {
         unsafe {
             glp_bf_updated(self.this)
         }
-
     }
 
     #[inline(never)] #[fixed_stack_segment]
-    pub fn get_bfcp(&self, parm: *mut Bfcp) {
+    pub fn get_bfcp(&self, parm: &mut Bfcp) {
         unsafe {
-            glp_get_bfcp(self.this)
+            glp_get_bfcp(self.this, ptr::to_mut_unsafe_ptr(parm))
         }
-
     }
 
     #[inline(never)] #[fixed_stack_segment]
-    pub fn set_bfcp(&mut self, parm: *Bfcp) {
+    pub fn set_bfcp(&mut self, parm: &Bfcp) {
         unsafe {
-            glp_set_bfcp(self.this)
+            glp_set_bfcp(self.this, ptr::to_unsafe_ptr(parm))
         }
-
     }
 
     #[inline(never)] #[fixed_stack_segment]
     pub fn get_bhead(&self, k: c_int) -> c_int {
         unsafe {
-            glp_get_bhead(self.this)
+            glp_get_bhead(self.this, k)
         }
-
     }
 
     #[inline(never)] #[fixed_stack_segment]
     pub fn get_row_bind(&self, i: c_int) -> c_int {
         unsafe {
-            glp_get_row_bind(self.this)
+            glp_get_row_bind(self.this, i)
         }
-
     }
 
     #[inline(never)] #[fixed_stack_segment]
     pub fn get_col_bind(&self, j: c_int) -> c_int {
         unsafe {
-            glp_get_col_bind(self.this)
+            glp_get_col_bind(self.this, j)
         }
-
     }
 
     #[inline(never)] #[fixed_stack_segment]
-    pub fn ftran(&mut self, x: void) {
+    pub fn ftran(&mut self, x: &mut [c_double]) {
         unsafe {
-            glp_ftran(self.this)
+            glp_ftran(self.this, mp(x))
         }
-
     }
 
     #[inline(never)] #[fixed_stack_segment]
-    pub fn btran(&mut self, x: void) {
+    pub fn btran(&mut self, x: &mut [c_double]) {
         unsafe {
-            glp_btran(self.this)
+            glp_btran(self.this, mp(x))
         }
-
     }
 
     #[inline(never)] #[fixed_stack_segment]
@@ -818,77 +805,92 @@ impl Prob {
         unsafe {
             glp_warm_up(self.this)
         }
-
     }
 
     #[inline(never)] #[fixed_stack_segment]
-    pub fn eval_tab_row(&mut self, k: c_int, ind: void, val: void) -> c_int {
+    pub fn eval_tab_row(&mut self, k: c_int, ind: &mut [c_int], val: &mut [c_double]) -> c_int {
         unsafe {
-            glp_eval_tab_row(self.this)
+            glp_eval_tab_row(self.this, k, mp(ind), mp(val))
         }
 
     }
 
     #[inline(never)] #[fixed_stack_segment]
-    pub fn eval_tab_col(&mut self, k: c_int, ind: void, val: void) -> c_int {
+    pub fn eval_tab_col(&mut self, k: c_int, ind: &mut [c_int], val: &mut [c_double]) -> c_int {
         unsafe {
-            glp_eval_tab_col(self.this)
+            glp_eval_tab_col(self.this, k, mp(ind), mp(val))
         }
 
     }
 
     #[inline(never)] #[fixed_stack_segment]
-    pub fn transform_row(&mut self, len: c_int, ind: void, val: void) -> c_int {
+    pub fn transform_row(&mut self, len: c_int, ind: &mut [c_int], val: &mut [c_double]) -> c_int {
         unsafe {
-            glp_transform_row(self.this)
+            glp_transform_row(self.this, len, mp(ind), mp(val))
         }
 
     }
 
     #[inline(never)] #[fixed_stack_segment]
-    pub fn transform_col(&mut self, len: c_int, ind: void, val: void) -> c_int {
+    pub fn transform_col(&mut self, len: c_int, ind: &mut [c_int], val: &mut [c_double]) -> c_int {
         unsafe {
-            glp_transform_col(self.this)
+            glp_transform_col(self.this, len, mp(ind), mp(val))
         }
 
     }
 
     #[inline(never)] #[fixed_stack_segment]
-    pub fn prim_rtest(&mut self, len: c_int, ind: void, val: void, dir: c_int, eps: c_double) -> c_int {
+    pub fn prim_rtest(&mut self, len: c_int, ind: &[c_int], val: &[c_double], dir: c_int, eps: c_double) -> c_int {
         unsafe {
-            glp_prim_rtest(self.this)
+            glp_prim_rtest(self.this, len, p(ind), p(val), dir, eps)
         }
 
     }
 
     #[inline(never)] #[fixed_stack_segment]
-    pub fn dual_rtest(&mut self, len: c_int, ind: void, val: void, dir: c_int, eps: c_double) -> c_int {
+    pub fn dual_rtest(&mut self, len: c_int, ind: &[c_int], val: &[c_double], dir: c_int, eps: c_double) -> c_int {
         unsafe {
-            glp_dual_rtest(self.this)
+            glp_dual_rtest(self.this, len, p(ind), p(val), dir, eps)
         }
 
     }
 
     #[inline(never)] #[fixed_stack_segment]
     pub fn analyze_bound(&mut self,
-    k:      c_int,
-    value1: *mut c_double,
-    var1:   *mut c_int,
-    value2: *mut c_double,
-    var2:   *mut c_int) {
+                         k:      c_int,
+                         value1: &mut c_double,
+                         var1:   &mut c_int,
+                         value2: &mut c_double,
+                         var2:   &mut c_int) {
+        unsafe {
+            glp_analyze_bound(self.this, k, ptr::to_mut_unsafe_ptr(value1),
+                              ptr::to_mut_unsafe_ptr(var1), ptr::to_mut_unsafe_ptr(value2),
+                              ptr::to_mut_unsafe_ptr(var2))
+        }
     }
 
     #[inline(never)] #[fixed_stack_segment]
     pub fn analyze_coef(&mut self,
-    k:      c_int,
-    coef1:  *mut c_double,
-    var1:   *mut c_int,
-    value1: *mut c_double,
-    coef2:  *mut c_double,
-    var2:   *mut c_int,
-    value2: *mut c_double) {
+                        k:      c_int,
+                        coef1:  &mut c_double,
+                        var1:   &mut c_int,
+                        value1: &mut c_double,
+                        coef2:  &mut c_double,
+                        var2:   &mut c_int,
+                        value2: &mut c_double) {
+        unsafe {
+            glp_analyze_coef(
+                self.this, k,
+                ptr::to_mut_unsafe_ptr(coef1),
+                ptr::to_mut_unsafe_ptr(var1),
+                ptr::to_mut_unsafe_ptr(value1),
+                ptr::to_mut_unsafe_ptr(coef2),
+                ptr::to_mut_unsafe_ptr(var2),
+                ptr::to_mut_unsafe_ptr(value2))
+        }
     }
 
+    /*
     #[inline(never)] #[fixed_stack_segment]
     pub fn read_mps(&mut self, fmt: c_int, parm: *Mpscp, fname: *schar) -> c_int {
         unsafe {
@@ -944,39 +946,40 @@ impl Prob {
         }
 
     }
+    */
 
     #[inline(never)] #[fixed_stack_segment]
-    pub fn check_cnfsat(&mut self) -> c_int {
+    pub fn check_cnfsat(&self) -> c_int {
         unsafe {
             glp_check_cnfsat(self.this)
         }
 
     }
 
+    /*
     #[inline(never)] #[fixed_stack_segment]
     pub fn write_cnfsat(&mut self, fname: *schar) -> c_int {
         unsafe {
             glp_write_cnfsat(self.this)
         }
-
     }
+    */
 
     #[inline(never)] #[fixed_stack_segment]
-    pub fn minisat1(&mut self) -> c_int {
+    pub fn minisat1(&self) -> c_int {
         unsafe {
             glp_minisat1(self.this)
         }
-
     }
 
     #[inline(never)] #[fixed_stack_segment]
     pub fn intfeas1(&mut self, use_bound: c_int, obj_bound: c_int) -> c_int {
         unsafe {
-            glp_intfeas1(self.this)
+            glp_intfeas1(self.this, use_bound, obj_bound)
         }
-
     }
 
+    /*
     #[inline(never)] #[fixed_stack_segment]
     pub fn mincost_lp(&mut self, G: *mut Graph, names: c_int, v_rhs: c_int, a_low: c_int, a_cap: c_int, a_cost: c_int) {
         unsafe {
