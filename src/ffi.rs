@@ -1,12 +1,158 @@
-#[link(name = "glpk-rs"
-       , vers = "0.0"
-       , author = "Sébastien Crozet, rust-bindgen"
-       , uuid = "0eb7593d-915e-4c54-8107-fbeed2471670")];
-#[crate_type = "lib"];
+use std::libc::*;
+
+/* library version numbers: */
+pub static GLP_MAJOR_VERSION : c_int = 4;
+pub static GLP_MINOR_VERSION : c_int = 52;
+
+/* optimization direction flag: */
+pub static GLP_MIN : c_int = 1;  /* minimization */
+pub static GLP_MAX : c_int = 2;  /* maximization */
+
+/* kind of structural variable: */
+pub static GLP_CV : c_int = 1;  /* continuous variable */
+pub static GLP_IV : c_int = 2;  /* integer variable */
+pub static GLP_BV : c_int = 3;  /* binary variable */
+
+/* type of auxiliary/structural variable: */
+pub static GLP_FR : c_int = 1;  /* free (unbounded) variable */
+pub static GLP_LO : c_int = 2;  /* variable with lower bound */
+pub static GLP_UP : c_int = 3;  /* variable with upper bound */
+pub static GLP_DB : c_int = 4;  /* double-bounded variable */
+pub static GLP_FX : c_int = 5;  /* fixed variable */
+
+/* status of auxiliary/structural variable: */
+pub static GLP_BS : c_int = 1;  /* basic variable */
+pub static GLP_NL : c_int = 2;  /* non-basic variable on lower bound */
+pub static GLP_NU : c_int = 3;  /* non-basic variable on upper bound */
+pub static GLP_NF : c_int = 4;  /* non-basic free (unbounded) variable */
+pub static GLP_NS : c_int = 5;  /* non-basic fixed variable */
+
+/* scaling options: */
+pub static GLP_SF_GM : c_int = 0x01;  /* perform geometric mean scaling */
+pub static GLP_SF_EQ : c_int = 0x10;  /* perform equilibration scaling */
+pub static GLP_SF_2N : c_int = 0x20;  /* round scale factors to power of two */
+pub static GLP_SF_SKIP : c_int = 0x40;  /* skip if problem is well scaled */
+pub static GLP_SF_AUTO : c_int = 0x80;  /* choose scaling options automatically */
+
+/* solution indicator: */
+pub static GLP_SOL : c_int = 1;  /* basic solution */
+pub static GLP_IPT : c_int = 2;  /* interior-point solution */
+pub static GLP_MIP : c_int = 3;  /* mixed integer solution */
+
+/* solution status: */
+pub static GLP_UNDEF : c_int = 1;  /* solution is undefined */
+pub static GLP_FEAS : c_int = 2;  /* solution is feasible */
+pub static GLP_INFEAS : c_int = 3;  /* solution is infeasible */
+pub static GLP_NOFEAS : c_int = 4;  /* no feasible solution exists */
+pub static GLP_OPT : c_int = 5;  /* solution is optimal */
+pub static GLP_UNBND : c_int = 6;  /* solution is unbounded */
+
+pub static GLP_BF_FT : c_int = 1;  /* LUF + Forrest-Tomlin */
+pub static GLP_BF_BG : c_int = 2;  /* LUF + Schur compl. + Bartels-Golub */
+pub static GLP_BF_GR : c_int = 3;  /* LUF + Schur compl. + Givens rotation */
+
+pub static GLP_MSG_OFF : c_int = 0;  /* no output */
+pub static GLP_MSG_ERR : c_int = 1;  /* warning and error messages only */
+pub static GLP_MSG_ON : c_int = 2;  /* normal output */
+pub static GLP_MSG_ALL : c_int = 3;  /* full output */
+pub static GLP_MSG_DBG : c_int = 4;  /* debug output */
+
+pub static GLP_PRIMAL : c_int = 1;  /* use primal simplex */
+pub static GLP_DUALP : c_int = 2;  /* use dual; if it fails, use primal */
+pub static GLP_DUAL : c_int = 3;  /* use dual simplex */
+
+pub static GLP_PT_STD : c_int = 0x11;  /* standard (Dantzig rule) */
+pub static GLP_PT_PSE : c_int = 0x22;  /* projected steepest edge */
+
+pub static GLP_RT_STD : c_int = 0x11;  /* standard (textbook) */
+pub static GLP_RT_HAR : c_int = 0x22;  /* two-pass Harris' ratio test */
+
+pub static GLP_ORD_NONE : c_int = 0;  /* natural (original) ordering */
+pub static GLP_ORD_QMD : c_int = 1;  /* quotient minimum degree (QMD) */
+pub static GLP_ORD_AMD : c_int = 2;  /* approx. minimum degree (AMD) */
+pub static GLP_ORD_SYMAMD : c_int = 3;  /* approx. minimum degree (SYMAMD) */
+
+pub static GLP_BR_FFV : c_int = 1;  /* first fractional variable */
+pub static GLP_BR_LFV : c_int = 2;  /* last fractional variable */
+pub static GLP_BR_MFV : c_int = 3;  /* most fractional variable */
+pub static GLP_BR_DTH : c_int = 4;  /* heuristic by Driebeck and Tomlin */
+pub static GLP_BR_PCH : c_int = 5;  /* hybrid pseudocost heuristic */
+
+pub static GLP_BT_DFS : c_int = 1;  /* depth first search */
+pub static GLP_BT_BFS : c_int = 2;  /* breadth first search */
+pub static GLP_BT_BLB : c_int = 3;  /* best local bound */
+pub static GLP_BT_BPH : c_int = 4;  /* best projection heuristic */
+
+pub static GLP_PP_NONE : c_int = 0;  /* disable preprocessing */
+pub static GLP_PP_ROOT : c_int = 1;  /* preprocessing only on root level */
+pub static GLP_PP_ALL : c_int = 2;  /* preprocessing on all levels */
+
+pub static GLP_RF_REG : c_int = 0;  /* regular constraint */
+pub static GLP_RF_LAZY : c_int = 1;  /* "lazy" constraint */
+pub static GLP_RF_CUT : c_int = 2;  /* cutting plane constraint */
+
+pub static GLP_RF_GMI : c_int = 1;  /* Gomory's mixed integer cut */
+pub static GLP_RF_MIR : c_int = 2;  /* mixed integer rounding cut */
+pub static GLP_RF_COV : c_int = 3;  /* mixed cover cut */
+pub static GLP_RF_CLQ : c_int = 4;  /* clique cut */
+
+/* enable/disable flag: */
+pub static GLP_ON : c_int = 1;  /* enable something */
+pub static GLP_OFF : c_int = 0;  /* disable something */
+
+/* reason codes: */
+pub static GLP_IROWGEN : c_int = 0x01;  /* request for row generation */
+pub static GLP_IBINGO : c_int = 0x02;  /* better integer solution found */
+pub static GLP_IHEUR : c_int = 0x03;  /* request for heuristic solution */
+pub static GLP_ICUTGEN : c_int = 0x04;  /* request for cut generation */
+pub static GLP_IBRANCH : c_int = 0x05;  /* request for branching */
+pub static GLP_ISELECT : c_int = 0x06;  /* request for subproblem selection */
+pub static GLP_IPREPRO : c_int = 0x07;  /* request for preprocessing */
+
+/* branch selection indicator: */
+pub static GLP_NO_BRNCH : c_int = 0;  /* select no branch */
+pub static GLP_DN_BRNCH : c_int = 1;  /* select down-branch */
+pub static GLP_UP_BRNCH : c_int = 2;  /* select up-branch */
+
+/* return codes: */
+pub static GLP_EBADB : c_int = 0x01;  /* invalid basis */
+pub static GLP_ESING : c_int = 0x02;  /* singular matrix */
+pub static GLP_ECOND : c_int = 0x03;  /* ill-conditioned matrix */
+pub static GLP_EBOUND : c_int = 0x04;  /* invalid bounds */
+pub static GLP_EFAIL : c_int = 0x05;  /* solver failed */
+pub static GLP_EOBJLL : c_int = 0x06;  /* objective lower limit reached */
+pub static GLP_EOBJUL : c_int = 0x07;  /* objective upper limit reached */
+pub static GLP_EITLIM : c_int = 0x08;  /* iteration limit exceeded */
+pub static GLP_ETMLIM : c_int = 0x09;  /* time limit exceeded */
+pub static GLP_ENOPFS : c_int = 0x0A;  /* no primal feasible solution */
+pub static GLP_ENODFS : c_int = 0x0B;  /* no dual feasible solution */
+pub static GLP_EROOT : c_int = 0x0C;  /* root LP optimum not provided */
+pub static GLP_ESTOP : c_int = 0x0D;  /* search terminated by application */
+pub static GLP_EMIPGAP : c_int = 0x0E;  /* relative mip gap tolerance reached */
+pub static GLP_ENOFEAS : c_int = 0x0F;  /* no primal/dual feasible solution */
+pub static GLP_ENOCVG : c_int = 0x10;  /* no convergence */
+pub static GLP_EINSTAB : c_int = 0x11;  /* numerical instability */
+pub static GLP_EDATA : c_int = 0x12;  /* invalid data */
+pub static GLP_ERANGE : c_int = 0x13;  /* result out of range */
+
+/* condition indicator: */
+pub static GLP_KKT_PE : c_int = 1;  /* primal equalities */
+pub static GLP_KKT_PB : c_int = 2;  /* primal bounds */
+pub static GLP_KKT_DE : c_int = 3;  /* dual equalities */
+pub static GLP_KKT_DB : c_int = 4;  /* dual bounds */
+pub static GLP_KKT_CS : c_int = 5;  /* complementary slackness */
+
+/* MPS file format: */
+pub static GLP_MPS_DECK : c_int = 1;  /* fixed (ancient) */
+pub static GLP_MPS_FILE : c_int = 2;  /* free (modern) */
+
+/* assignment problem formulation: */
+pub static GLP_ASN_MIN : c_int = 1;  /* perfect matching (minimization) */
+pub static GLP_ASN_MAX : c_int = 2;  /* perfect matching (maximization) */
+pub static GLP_ASN_MMP : c_int = 3;  /* maximum matching */
 
 /* automatically generated by rust-bindgen */
 
-use std::libc::*;
 pub type Struct_glp_prob = c_void;
 pub type glp_prob = Struct_glp_prob;
 pub struct glp_bfcp {
