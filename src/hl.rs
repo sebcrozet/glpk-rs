@@ -166,6 +166,14 @@ mod test {
 
     #[test]
     fn test_small_problem_hl() {
+
+        /*
+         * Solve:
+         *  maximize	0.6 x + 0.5 y
+         *  subject to	x     + 2 y <= 1
+         *              3 x   + y   <= 2
+         */
+
         let x = @mut Variable::new(~"x", Continuous(0.0));
         let y = @mut Variable::new(~"y", Continuous(0.0));
 
