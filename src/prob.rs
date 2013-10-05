@@ -18,12 +18,6 @@ pub struct Prob {
     priv this: *mut glp_prob
 }
 
-pub fn glp_start(f: &fn()) {
-    init_env();
-    f();
-    free_env();
-}
-
 impl Prob {
     #[inline(never)] #[fixed_stack_segment]
     pub fn new() -> Prob {
@@ -1017,8 +1011,7 @@ impl Prob {
 impl Drop for Prob {
     #[inline(never)] #[fixed_stack_segment]
     fn drop(&mut self) {
-        // FIXME: this cause allocation error in tests… why?
-        // unsafe { glp_delete_prob(self.this); }
+        unsafe { glp_delete_prob(self.this); }
     }
 }
 
@@ -1094,7 +1087,7 @@ mod test {
             x1 = lp.get_col_prim(1);
             x2 = lp.get_col_prim(2);
 
-            println!("z = { }; x1 = { }; x2 = { }", z, x1, x2);
+            println!("z = { }; x = { }; y = { }", z, x1, x2);
 
             assert!(z.approx_eq(&0.46));
             assert!(x1.approx_eq(&0.6));

@@ -6,7 +6,7 @@ all:
 
 test:
 	mkdir -p lib
-	rust test src/lib.rs
+	RUST_TEST_TASKS=1 rust test src/lib.rs
 	rm libtest~
 
 distcheck:

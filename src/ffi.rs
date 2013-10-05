@@ -584,3 +584,11 @@ pub fn free_env() {
 pub fn init_env() {
     unsafe { glp_init_env(); }
 }
+
+pub fn glp_start<T>(f: &fn() -> T) -> T{
+    init_env();
+    let res = f();
+    free_env();
+
+    res
+}

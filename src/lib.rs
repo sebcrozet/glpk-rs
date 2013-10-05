@@ -9,3 +9,4 @@ pub use prob::*;
 
 pub mod ffi;
 pub mod prob;
+pub mod hl;
