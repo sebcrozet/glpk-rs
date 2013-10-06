@@ -1,0 +1,8 @@
+<The geogrpahical storage problem>
+
+Problem:
+
+An entity needs to select m storage sites out of n possibilities.
+Each storage site has a geographical position (A 2d point) and a storage capacity.
+The goal is to select the n storage sites while maintaining a maximum distance of 50 kms between any
+given pair of sites.
