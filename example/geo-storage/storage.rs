@@ -43,7 +43,7 @@ fn parse_uint(i: &str) -> uint {
     FromStr::from_str(i).unwrap()
 }
 
-fn solve_geo_storage(path: &str) {
+fn solve_geo_storage(path: &str, path_out: &str) {
 
 
     let lines   = io::read_whole_file_str(&PosixPath(path)).expect("Unable to read file: " + path);
@@ -60,12 +60,7 @@ fn solve_geo_storage(path: &str) {
 
     let mut n = 0u;
     for l in lines_i {
-        if n < m {
-            sel_sites.push(@mut Variable::new("b" + n.to_str(), Bool(true)));
-        }
-        else {
-            sel_sites.push(@mut Variable::new("b" + n.to_str(), Bool(false)));
-        }
+        sel_sites.push(@mut Variable::new("b" + n.to_str(), Bool(false)));
         sites.push(Site::new_from_line(l));
         pb_vec.push((sites[n].cap, sel_sites[n]));
         n = n + 1;
@@ -96,13 +91,27 @@ fn solve_geo_storage(path: &str) {
     }
 
     let mut problem = Problem::new(~"Geographic", constraints, pb_vec);
-    let solution = problem.solve(true);
+    problem.solve(true);
+    let writer = io::buffered_file_writer(&PosixPath(path_out)).expect("Unable to write in file: " + path_out);
+
+
+    let mut started = false;
     for (i, s) in sel_sites.iter().enumerate() {
-        println(s.vtype.to_str());
+        match s.vtype {
+            Bool(v) =>
+                if v {
+                    if (started) {
+                        writer.write_str(" ");
+                    }
+                    started = true;
+                    writer.write_str(i.to_str());
+                },
+            _ => fail!("impossible!")
+        }
     }
 }
 
 pub fn main()
 {
-    solve_geo_storage("./example/geo-storage/input.txt");
+    solve_geo_storage("./example/geo-storage/input.txt", "out.txt");
 }
