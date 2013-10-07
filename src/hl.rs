@@ -60,7 +60,7 @@ impl Problem {
         }
     }
 
-    pub fn solve(&mut self, maximize: bool) -> f64 {
+    pub fn solve(&mut self, maximize: bool, mip: bool) -> f64 {
         do ffi::glp_start {
             let mut lp = Prob::new();
 
@@ -143,13 +143,27 @@ impl Problem {
 
             lp.simplex(None);
 
+            if mip {
+                lp.intopt(None);
+            }
+
             for v in variables.iter() {
-                let val = lp.get_col_prim(v.id as i32);
+                let val = if mip { lp.mip_col_val(v.id as i32) }
+                          else   { lp.get_col_prim(v.id as i32) };
                 let newtype =
                     match v.vtype {
-                        Bool(_)       => Bool(val != 0.0),
-                        Continuous(_) => Continuous(val),
-                        Integer(_)    => Integer(val as int)
+                        Bool(_)       => {
+                            println!("val: {}", val);
+                            Bool(val != 0.0)
+                        },
+                        Continuous(_) => {
+                            println!("val: {}", val);
+                            Continuous(val)
+                        },
+                        Integer(_)    => {
+                            println!("val: {}", val);
+                            Integer(val as int)
+                        }
                     };
 
                 v.vtype = newtype;
@@ -182,7 +196,7 @@ mod test {
 
         let mut problem = Problem::new(~"Simple problem.", ~[c1, c2], ~[(0.6, x), (0.5, y)]);
 
-        let solution = problem.solve(true);
+        let solution = problem.solve(true, false);
 
         println!("z = { }; x = { }; y = { }", solution, x.vtype.to_str(), y.vtype.to_str());
     }

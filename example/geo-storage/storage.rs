@@ -79,8 +79,8 @@ fn solve_geo_storage(path: &str, path_out: &str) {
         cst_vec.push((1.0, *s));
     }
 
-    constraints.push(Constraint::new(~"less", cst_vec, LE(m as f64)));
-    //constraints.push(Constraint::new(~"great", cst_vec.clone(), GE(m as f64)));
+    constraints.push(Constraint::new(~"less", cst_vec.clone(), LE(m as f64)));
+    constraints.push(Constraint::new(~"great", cst_vec, GE(m as f64)));
 
     for (i, si) in sites.iter().enumerate() {
         for (j, sj) in sites.iter().enumerate() {
@@ -98,7 +98,7 @@ fn solve_geo_storage(path: &str, path_out: &str) {
 
 
     let mut problem = Problem::new(~"Geographic", constraints, pb_vec);
-    problem.solve(true);
+    problem.solve(true, true);
     let writer = io::buffered_file_writer(&PosixPath(path_out)).expect("Unable to write in file: " + path_out);
 
 
