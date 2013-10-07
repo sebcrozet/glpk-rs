@@ -6,14 +6,16 @@ use glpkrs::hl::Constraint;
 use glpkrs::hl::Problem;
 
 pub struct Site {
+    id: uint,
     x: f64,
     y: f64,
     cap: f64
 }
 
 impl Site {
-    pub fn new(x: f64, y: f64, cap: f64) -> Site {
+    pub fn new(id: uint, x: f64, y: f64, cap: f64) -> Site {
         Site {
+            id: id,
             x: x,
             y: y,
             cap: cap
@@ -23,11 +25,13 @@ impl Site {
     pub fn new_from_line(line: &str) -> Site {
         let mut iter = line.split_iter(' ');
 
+        let id         = iter.next().unwrap();
         let x          = iter.next().unwrap();
         let y          = iter.next().unwrap();
         let cap        = iter.next().unwrap();
 
         Site::new(
+            parse_uint(id),
             parse_f64(x),
             parse_f64(y),
             parse_f64(cap)
@@ -48,6 +52,8 @@ fn solve_geo_storage(path: &str, path_out: &str) {
 
     let lines   = io::read_whole_file_str(&PosixPath(path)).expect("Unable to read file: " + path);
 
+    println(lines);
+
     let mut sel_sites: ~[@mut Variable] = ~[];
     let mut sites: ~[Site] = ~[];
     let mut pb_vec: ~[(f64, @mut Variable)] = ~[];
@@ -60,7 +66,7 @@ fn solve_geo_storage(path: &str, path_out: &str) {
 
     let mut n = 0u;
     for l in lines_i {
-        sel_sites.push(@mut Variable::new("b" + n.to_str(), Bool(false)));
+        sel_sites.push(@mut Variable::new("b" + n.to_str(), Bool(true)));
         sites.push(Site::new_from_line(l));
         pb_vec.push((sites[n].cap, sel_sites[n]));
         n = n + 1;
@@ -73,8 +79,8 @@ fn solve_geo_storage(path: &str, path_out: &str) {
         cst_vec.push((1.0, *s));
     }
 
-    constraints.push(Constraint::new(~"less", cst_vec.clone(), LE(m as f64)));
-    constraints.push(Constraint::new(~"great", cst_vec.clone(), GE(m as f64)));
+    constraints.push(Constraint::new(~"less", cst_vec, LE(m as f64)));
+    //constraints.push(Constraint::new(~"great", cst_vec.clone(), GE(m as f64)));
 
     for (i, si) in sites.iter().enumerate() {
         for (j, sj) in sites.iter().enumerate() {
@@ -90,21 +96,22 @@ fn solve_geo_storage(path: &str, path_out: &str) {
         }
     }
 
+
     let mut problem = Problem::new(~"Geographic", constraints, pb_vec);
     problem.solve(true);
     let writer = io::buffered_file_writer(&PosixPath(path_out)).expect("Unable to write in file: " + path_out);
 
 
     let mut started = false;
-    for (i, s) in sel_sites.iter().enumerate() {
+    for s in sel_sites.iter() {
         match s.vtype {
             Bool(v) =>
-                if v {
+                if v == true {
                     if (started) {
                         writer.write_str(" ");
                     }
                     started = true;
-                    writer.write_str(i.to_str());
+                    writer.write_str(s.id.to_str());
                 },
             _ => fail!("impossible!")
         }
